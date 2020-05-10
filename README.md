@@ -1,4 +1,4 @@
-# PexperMensurar
+# Mensurar
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.3.12.
 
@@ -27,6 +27,18 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
 
 
+## Configs
+
 `ng add @angular/material`
 
 `npm install --save @angular/flex-layout firebase @angular/fire`
+
+## Angular 9 Update
+
+`ng update`
+
+`ng update @angular/core@8 @angular/cli@8`
+
+`ng update @angular/core @angular/cli`
+
+`ng update @angular/material`
