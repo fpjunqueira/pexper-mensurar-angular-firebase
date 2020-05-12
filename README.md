@@ -42,3 +42,8 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 `ng update @angular/core @angular/cli`
 
 `ng update @angular/material`
+
+## TODO
+
+* auth:       allow read, write: if request.auth != null;
+      allow read, write: if request.auth != null;

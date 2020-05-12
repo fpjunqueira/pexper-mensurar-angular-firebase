@@ -1,1 +1,6 @@
-<p>dropzone works!</p>
+<div class="box-dropzone" 
+    (drop)="onDropEvent($event)"
+    (dragover)="onDragOverEvent($event)" 
+    (dragleave)="onDragLeave($event)"
+    [class.dropzone-drag-and-hovering]="isDragingOver">
+</div>
