@@ -1,7 +1,9 @@
 import { Observable } from 'rxjs';
 
 export interface ProjectFile {
-    fileName; string;
+    // TODO: deixar obrigatório
+    projectId?: string;
+    fileName: string;
     size: number;
     date: number;
     path: string;

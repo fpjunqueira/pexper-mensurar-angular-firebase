@@ -1,19 +1,27 @@
 import { Injectable } from '@angular/core';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { FileEntry } from './models/file-entry';
-import { map, catchError } from 'rxjs/operators';
-import { of, from } from 'rxjs';
+import { map, catchError, finalize } from 'rxjs/operators';
+import { of, from, Observable } from 'rxjs';
+import { AngularFirestore } from '@angular/fire/firestore/';
+import { AngularFirestoreCollection } from '@angular/fire/firestore/public_api';
+import { ProjectFile } from './models/project-file';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FilesService {
 
-  constructor(private storage: AngularFireStorage) { }
+  private filesCollection: AngularFirestoreCollection<ProjectFile>;
+
+  constructor(private storage: AngularFireStorage,
+              private afs: AngularFirestore) {
+    this.filesCollection = afs.collection('project-files', ref => ref.orderBy('date', 'desc'));
+  }
 
   /**
-   * 
-   * @param f Upload de arquivo no firestorage
+   * Upload simples de arquivos no firestorage
+   * @param f File
    */
   uploadFile(f: File) {
     const path = `projetos/teste/${f.name}`;
@@ -21,7 +29,10 @@ export class FilesService {
     task.snapshotChanges()
       .subscribe(s => console.log(s));
   }
-
+  /**
+   * Upload de arquivos com acesso aos estados da operação
+   * @param f File Entry
+   */
   upload(f: FileEntry) {
     const newFileName = `${(new Date()).getTime()}_${f.file.name}`;
     const path = `projetos/teste/${newFileName}`;
@@ -31,11 +42,28 @@ export class FilesService {
     f.state = f.task.snapshotChanges()
       .pipe(
         map(s => f.task.task.snapshot.state),
-        catchError( s => {
+        catchError(s => {
           return of(f.task.task.snapshot.state);
         })
       );
     this.fillAttributes(f);
+
+    // salva dados do arquivo no banco
+    f.task.snapshotChanges().pipe(
+      finalize(() => { // captura o término do observable
+        if (f.task.task.snapshot.state === 'success') {
+         this.filesCollection.add({
+           fileName: f.file.name,
+           path,
+           date: (new Date()).getTime(),
+           size: f.file.size,
+           projectId: 'teste',
+         });
+        }
+      })
+    )
+    .subscribe();
+
   }
 
   fillAttributes(f: FileEntry) {
@@ -48,5 +76,17 @@ export class FilesService {
     f.error = f.state.pipe(map((s) => s === 'error'));
     f.canceled = f.state.pipe(map((s) => s === 'canceled'));
     f.bytesUploaded = f.task.snapshotChanges().pipe((map(s => s.bytesTransferred)));
+  }
+
+  getFiles(): Observable<ProjectFile[]> {
+    return this.filesCollection.snapshotChanges()
+      .pipe(map(actions => {
+        return actions.map(a => {
+          const file: ProjectFile = a.payload.doc.data();
+          const id = a.payload.doc.id;
+          const url = this.storage.ref(file.path).getDownloadURL();
+          return {id, ...file, url};
+        });
+      }));
   }
 }
