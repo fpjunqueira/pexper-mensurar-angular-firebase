@@ -89,4 +89,9 @@ export class FilesService {
         });
       }));
   }
+
+  deleteFile(f: ProjectFile) {
+    this.storage.ref(f.path).delete();
+    this.filesCollection.doc(f.id).delete();
+  }
 }

@@ -1,1 +1,12 @@
-<p>my-files works!</p>
+<div>
+    <mat-list>
+        <mat-list-item *ngFor="let f of files | async">
+            <!--TODO: Mudar icone conforme tipo de arquivo-->
+            <mat-icon mat-list-icon style="color: gray;">attach_file</mat-icon>
+            <h4 mat-line style="color: black;">{{f.fileName}}</h4>
+            <p mat-line style="color: gray;">{{f.date | date:'medium'}} {{f.size}} bytes</p>
+            <a [href]="f.url | async" ><mat-icon>cloud_download</mat-icon></a>
+            <button mat-icon-button style="color: red;" (click)="delete(f)"><mat-icon>delete_outline</mat-icon></button>
+        </mat-list-item>
+    </mat-list>
+</div>
